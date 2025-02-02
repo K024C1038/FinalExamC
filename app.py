@@ -93,9 +93,11 @@ def send_message():
     # Handle image upload
     file = request.files.get('image')
     filename = None
-    if file and allowed_file(file.filename):
+    if file and file.filename and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    else:
+        filename = ""  # Assign an empty string if no valid file is provided
 
     if message or filename:
         diary_messages.save_message(user, message, filename)
@@ -103,7 +105,7 @@ def send_message():
     return redirect('/')
 
 
-# Delete a diary entry
+# Delete a Diary Entry
 @app.route('/delete/<int:entry_id>', methods=['POST'])
 def delete_entry(entry_id):
     if not diary_login.is_login():
@@ -115,32 +117,44 @@ def delete_entry(entry_id):
     return redirect('/')
 
 
-# Edit a diary entry
-@app.route('/edit/<int:entry_id>', methods=['GET', 'POST'])
+# Edit a Diary Entry
+@app.route('/edit/<int:entry_id>')
 def edit_entry(entry_id):
     if not diary_login.is_login():
         return redirect('/login')
 
     user = diary_login.get_user()
+    entry = diary_messages.get_entry(user, entry_id)
+    if not entry:
+        return "Entry not found", 404
 
-    if request.method == 'POST':
-        new_text = request.form.get('message', '')
-        file = request.files.get('image')
-        filename = None
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-        diary_messages.edit_message(user, entry_id, new_text, filename)
-
-        return redirect('/')
-
-    entry = diary_messages.get_message(user, entry_id)
-    return render_template('edit.html', entry=entry, entry_id=entry_id)
+    return render_template('edit.html', entry_id=entry_id, entry=entry)
 
 
-# Show a message
+# Update a Diary Entry
+@app.route('/update/<int:entry_id>', methods=['POST'])
+def update_entry(entry_id):
+    if not diary_login.is_login():
+        return redirect('/login')
+
+    user = diary_login.get_user()
+    updated_text = request.form.get('message', '')
+    new_image = request.files.get('image')
+
+    # Handle new image upload if provided
+    new_image_filename = None
+    if new_image and new_image.filename:  # Check if the file is valid
+        filename = secure_filename(
+            new_image.filename)  # Ensure filename is safe
+        new_image_filename = filename
+        new_image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    diary_messages.update_entry(user, entry_id, updated_text,
+                                new_image_filename)
+    return redirect('/')
+
+
+# Show a Message Page
 def show_msg(msg):
     return render_template('msg.html', msg=msg)
 

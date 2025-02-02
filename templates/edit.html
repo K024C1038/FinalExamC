@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✏️ 編集 - あなたの日記</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>✏️ 日記を編集する</h1>
+    <form action="/update/{{ entry_id }}" method="POST" enctype="multipart/form-data" class="entry-form">
+      <textarea name="message" rows="6" placeholder="ここに日記を編集してください...">{{ entry.text }}</textarea>
+
+      <!-- Existing image preview (if available) -->
+      {% if entry.image %}
+        <div class="current-image">
+          <h3>現在の画像</h3>
+          <img src="{{ url_for('static', filename='uploads/' + entry.image) }}" alt="現在の画像" class="entry-image">
+        </div>
+      {% endif %}
+
+      <h3>画像を変更する</h3>
+      <input type="file" name="image">
+
+      <button type="submit">✔️ 更新</button>
+      <a href="/" class="cancel-btn">キャンセル</a>
+    </form>
+  </div>
+</body>
+</html>

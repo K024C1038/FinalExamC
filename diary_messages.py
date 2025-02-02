@@ -1,11 +1,13 @@
-import json
 import os
+import json
 from datetime import datetime
 
+# Directory to store user-specific diaries
 DATA_DIR = 'data'
+os.makedirs(DATA_DIR, exist_ok=True)
 
 
-# Load messages for a user
+# Load messages for a specific user
 def load_messages(user):
     user_file = os.path.join(DATA_DIR, f'diary_{user}.json')
 
@@ -28,7 +30,7 @@ def save_message(user, message, image=None):
         json.dump(messages, f, indent=4)
 
 
-# Delete a message
+# Delete a message by its entry ID for a specific user
 def delete_message(user, entry_id):
     user_file = os.path.join(DATA_DIR, f'diary_{user}.json')
     messages = load_messages(user)
@@ -40,21 +42,27 @@ def delete_message(user, entry_id):
         json.dump(messages, f, indent=4)
 
 
-# Edit a message
-def edit_message(user, entry_id, new_text, new_image=None):
+# Retrieve a specific entry by ID for a user
+def get_entry(user, entry_id):
+    messages = load_messages(user)
+    if 0 <= entry_id < len(messages):
+        return messages[entry_id]
+    return None
+
+
+# Update an entry with new text and optional new image for a user
+def update_entry(user, entry_id, updated_text, new_image_filename=None):
     user_file = os.path.join(DATA_DIR, f'diary_{user}.json')
     messages = load_messages(user)
 
     if 0 <= entry_id < len(messages):
-        messages[entry_id]['text'] = new_text
-        if new_image:
-            messages[entry_id]['image'] = new_image
+        # Update text
+        messages[entry_id]['text'] = updated_text
 
-    with open(user_file, 'w', encoding='utf-8') as f:
-        json.dump(messages, f, indent=4)
+        # Update image if provided
+        if new_image_filename:
+            messages[entry_id]['image'] = new_image_filename
 
-
-# Get a single message for editing
-def get_message(user, entry_id):
-    messages = load_messages(user)
-    return messages[entry_id] if 0 <= entry_id < len(messages) else None
+        # Save updated data
+        with open(user_file, 'w', encoding='utf-8') as f:
+            json.dump(messages, f, indent=4)
