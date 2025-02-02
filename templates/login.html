@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <div class="content">
+    <h1>📖 プライベート日記</h1>
+    <form action="/try_login" method="POST" class="form">
+      <fieldset>
+        <label for="user">ユーザー名</label>
+        <input type="text" name="user" id="user" required>
+
+        <label for="pw">パスワード</label>
+        <input type="password" name="pw" id="pw" required>
+
+        <button type="submit">ログイン</button>
+      </fieldset>
+    </form>
+    <p>アカウントを持っていませんか？ <a href="/signup">サインアップ</a></p>
+  </div>
+</body>
+</html>

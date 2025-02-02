@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📖 あなたの日記</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar collapsed" id="sidebar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">📌</button>
+      <div class="sidebar-content">
+        <h2>📖 Diary Menu</h2>
+
+        <a href="/logout" class="logout-btn">ログアウト</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content expanded" id="main-content">
+      <h1>📖 あなたの日記 - {{ user }}</h1>
+
+      <!-- Entry Form -->
+      <div class="entry-form">
+        <form action="/send" method="POST" enctype="multipart/form-data">
+          <textarea name="message" rows="4" placeholder="✍️ 何を考えていますか？"></textarea>
+          <input type="file" name="image">
+          <button type="submit">➕ 日記を追加</button>
+        </form>
+      </div>
+
+      <!-- Display Diary Entries -->
+      {% for msg in messages %}
+        <div class="entry-box">
+          <p class="entry-text">{{ msg.text }}</p>
+          {% if msg.image %}
+            <img src="{{ url_for('static', filename='uploads/' + msg.image) }}" class="entry-image">
+          {% endif %}
+          <small class="entry-date">{{ msg.date }}</small>
+
+          <!-- Edit & Delete Options -->
+          <div class="entry-actions">
+            <a href="/edit/{{ loop.index0 }}" class="edit-btn">✏️ 編集</a>
+            <form action="/delete/{{ loop.index0 }}" method="POST">
+              <button type="submit" class="delete-btn">🗑️ 削除</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Sidebar Toggle Script -->
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.getElementById("main-content");
+
+      // Toggle the 'collapsed' class on the sidebar
+      sidebar.classList.toggle("collapsed");
+
+      // Adjust main content width
+      if (sidebar.classList.contains("collapsed")) {
+        mainContent.classList.add("expanded");
+      } else {
+        mainContent.classList.remove("expanded");
+      }
+    }
+  </script>
+</body>
+</html>
